@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 class SchemaMapRequest(BaseModel):
@@ -9,8 +9,9 @@ class SchemaMapRequest(BaseModel):
 
 class MappingSuggestion(BaseModel):
     source: str
-    target: str
+    target: Optional[str]
     confidence: float
+    status: str
 
 
 class SchemaMapResponse(BaseModel):

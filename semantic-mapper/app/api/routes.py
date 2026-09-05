@@ -5,19 +5,20 @@ from app.models.schemas import (
     SchemaMapResponse
 )
 
-from app.services.similarity_service import SimilarityService
+from app.services.llm_mapper import LLMMapper
 
 
 router = APIRouter()
 
-similarity_service = SimilarityService()
+llm_mapper = LLMMapper()
 
 
 @router.post("/semantic-map", response_model=SchemaMapResponse)
 def semantic_map(request: SchemaMapRequest):
 
     try:
-        suggestions = similarity_service.find_mappings(
+
+        suggestions = llm_mapper.find_mappings(
             request.sourceSchema,
             request.targetSchema
         )
@@ -27,6 +28,7 @@ def semantic_map(request: SchemaMapRequest):
         }
 
     except Exception as e:
+
         raise HTTPException(
             status_code=500,
             detail=str(e)
