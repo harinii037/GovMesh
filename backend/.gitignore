@@ -35,3 +35,6 @@ build/
 ### Local secrets — never commit ###
 .env
 application-local.properties
+
+### Local run scripts — never commit ###
+run-local.ps1
