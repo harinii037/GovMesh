@@ -1,4 +1,7 @@
 package com.govmesh.backend.contract;
 
-public record ApprovedMapping(String source, String target) {
+public record ApprovedMapping(
+        String source,
+        String target
+) {
 }
