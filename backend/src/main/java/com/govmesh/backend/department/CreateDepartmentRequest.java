@@ -1,4 +1,10 @@
 package com.govmesh.backend.department;
 
-public record CreateDepartmentRequest(String name, DepartmentType type, String baseUrl) {
-}
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record CreateDepartmentRequest(
+        @NotBlank String name,
+        @NotNull DepartmentType type,
+        String baseUrl
+) {}

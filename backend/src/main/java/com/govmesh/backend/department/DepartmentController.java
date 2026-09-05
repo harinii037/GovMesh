@@ -3,6 +3,8 @@ package com.govmesh.backend.department;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -16,7 +18,7 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Department> createDepartment(@RequestBody CreateDepartmentRequest request) {
+    public ResponseEntity<Department> createDepartment(@Valid @RequestBody CreateDepartmentRequest request) {
         Department created = departmentService.createDepartment(
                 request.name(),
                 request.type(),
