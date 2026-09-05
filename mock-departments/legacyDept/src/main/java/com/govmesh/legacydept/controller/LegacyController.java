@@ -9,7 +9,6 @@ import java.util.List;
 public class LegacyController {
 
     // Internal legacy data.
-    // This is NOT exposed through an API endpoint.
     private final List<String> citizenData = List.of(
             "C101|Rahul Sharma|EMPLOYED|65000",
             "C102|Priya Nair|UNEMPLOYED|0",
@@ -24,5 +23,12 @@ public class LegacyController {
                 "employment",
                 "income"
         );
+    }
+
+    // Runtime endpoint.
+    // Simulates a legacy system exporting pipe-delimited data.
+    @GetMapping(value = "/export", produces = "text/plain")
+    public String exportData() {
+        return citizenData.get(0);
     }
 }

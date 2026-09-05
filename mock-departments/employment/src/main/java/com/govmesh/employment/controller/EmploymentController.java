@@ -1,8 +1,7 @@
 package com.govmesh.employment.controller;
 
 import com.govmesh.employment.model.Citizen;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -10,7 +9,6 @@ import java.util.List;
 public class EmploymentController {
 
     // Internal mock data.
-    // This exists inside the department but is NOT exposed through an endpoint.
     private final List<Citizen> citizens = List.of(
             new Citizen(
                     "C101",
@@ -38,7 +36,7 @@ public class EmploymentController {
             )
     );
 
-    // Only expose the schema
+    // Design-time: expose department schema
     @GetMapping("/schema")
     public List<String> getSchema() {
         return List.of(
@@ -49,5 +47,16 @@ public class EmploymentController {
                 "occupation",
                 "monthlyIncome"
         );
+    }
+
+    // Runtime: fetch one citizen's data
+    @GetMapping("/citizen/{id}")
+    public Citizen getCitizen(@PathVariable String id) {
+        return citizens.stream()
+                .filter(citizen -> citizen.citizenId().equals(id))
+                .findFirst()
+                .orElseThrow(() ->
+                        new RuntimeException("Citizen not found: " + id)
+                );
     }
 }
