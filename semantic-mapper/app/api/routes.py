@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import ValidationError
 
 from app.models.schemas import (
     SchemaMapRequest,
@@ -27,9 +28,16 @@ def semantic_map(request: SchemaMapRequest):
             "suggestions": suggestions
         }
 
+    except ValueError as e:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
     except Exception as e:
 
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal server error"
         )
