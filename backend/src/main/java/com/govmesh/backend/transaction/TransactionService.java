@@ -50,11 +50,34 @@ public class TransactionService {
 
             Map<String, Object> transformedData = transformationService.transform(sourceData, contract);
 
-            transaction.setStatus(TransactionStatus.SENDING);
-            transactionRepository.save(transaction);
-
             Connector targetConnector = buildConnector(targetDept);
-            targetConnector.sendData(transformedData);
+
+            int maxAttempts = 3;
+            int attempt = 0;
+            boolean sent = false;
+            Exception lastError = null;
+
+            while (attempt < maxAttempts && !sent) {
+                attempt++;
+                try {
+                    transaction.setStatus(attempt == 1 ? TransactionStatus.SENDING : TransactionStatus.RETRY_PENDING);
+                    transaction.setAttemptCount(attempt);
+                    transactionRepository.save(transaction);
+
+                    targetConnector.sendData(transformedData);
+                    sent = true;
+
+                } catch (Exception e) {
+                    lastError = e;
+                    if (attempt < maxAttempts) {
+                        Thread.sleep(2000); // wait 2 seconds before retrying
+                    }
+                }
+            }
+
+            if (!sent) {
+                throw new RuntimeException("Target unreachable after " + maxAttempts + " attempts", lastError);
+            }
 
             transaction.setStatus(TransactionStatus.SUCCESS);
 

@@ -26,6 +26,8 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionStatus status;
 
+    private int attemptCount = 0;
+
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -44,8 +46,13 @@ public class Transaction {
     public Department getSourceDepartment() { return sourceDepartment; }
     public Department getTargetDepartment() { return targetDepartment; }
     public String getContractId() { return contractId; }
+
     public TransactionStatus getStatus() { return status; }
     public void setStatus(TransactionStatus status) { this.status = status; this.updatedAt = Instant.now(); }
+
+    public int getAttemptCount() { return attemptCount; }
+    public void setAttemptCount(int attemptCount) { this.attemptCount = attemptCount; }
+
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }
