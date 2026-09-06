@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
 
     private final TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
 
-    public TransactionController(TransactionRepository transactionRepository) {
+    public TransactionController(TransactionRepository transactionRepository,
+                                  TransactionService transactionService) {
         this.transactionRepository = transactionRepository;
+        this.transactionService = transactionService;
     }
 
     @GetMapping("/{id}")
@@ -18,5 +21,13 @@ public class TransactionController {
         return transactionRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+    }
+
+    @PostMapping
+    public ResponseEntity<Transaction> createTransaction(
+            @RequestParam Long contractId,
+            @RequestParam String sourceRef) {
+
+        return ResponseEntity.ok(transactionService.executeTransaction(contractId, sourceRef));
     }
 }

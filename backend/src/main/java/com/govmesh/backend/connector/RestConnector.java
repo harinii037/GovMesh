@@ -28,8 +28,8 @@ public class RestConnector implements Connector {
 
     @Override
     public Map<String, Object> sendData(Map<String, Object> data) {
-        throw new UnsupportedOperationException(
-                "sendData() is not implemented yet"
-        );
+        String url = baseUrl + "/applications";
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, data, Map.class);
+        return response.getBody();
     }
 }
