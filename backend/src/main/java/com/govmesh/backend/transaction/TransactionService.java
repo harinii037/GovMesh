@@ -7,6 +7,8 @@ import com.govmesh.backend.contract.ContractService;
 import com.govmesh.backend.contract.TransformationContract;
 import com.govmesh.backend.department.Department;
 import com.govmesh.backend.department.DepartmentRepository;
+import com.govmesh.backend.governance.PolicyDecision;
+import com.govmesh.backend.governance.PolicyService;
 import com.govmesh.backend.transformation.TransformationService;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +21,18 @@ public class TransactionService {
     private final DepartmentRepository departmentRepository;
     private final ContractService contractService;
     private final TransformationService transformationService;
+    private final PolicyService policyService;
 
     public TransactionService(TransactionRepository transactionRepository,
                                DepartmentRepository departmentRepository,
                                ContractService contractService,
-                               TransformationService transformationService) {
+                               TransformationService transformationService,
+                               PolicyService policyService) {
         this.transactionRepository = transactionRepository;
         this.departmentRepository = departmentRepository;
         this.contractService = contractService;
         this.transformationService = transformationService;
+        this.policyService = policyService;
     }
 
     public Transaction executeTransaction(Long contractId, String sourceRef) {
@@ -42,6 +47,23 @@ public class TransactionService {
         transaction = transactionRepository.save(transaction);
 
         try {
+            // --- GOVERNANCE CHECK (new) ---
+            transaction.setStatus(TransactionStatus.GOVERNANCE_CHECK);
+            transactionRepository.save(transaction);
+
+            PolicyDecision decision = policyService.checkConsentDetailed(
+                    sourceDept.getName().toLowerCase(),
+                    targetDept.getName().toLowerCase(),
+                    "employment-data" // hardcoded for MVP — only category M5 seeded
+            );
+
+            if (!decision.allowed()) {
+                transaction.setStatus(TransactionStatus.DENIED);
+                transactionRepository.save(transaction);
+                return transaction; // not an error — a valid denied outcome
+            }
+            // --- end governance check ---
+
             transaction.setStatus(TransactionStatus.TRANSFORMING);
             transactionRepository.save(transaction);
 
@@ -70,7 +92,7 @@ public class TransactionService {
                 } catch (Exception e) {
                     lastError = e;
                     if (attempt < maxAttempts) {
-                        Thread.sleep(2000); // wait 2 seconds before retrying
+                        Thread.sleep(2000);
                     }
                 }
             }
